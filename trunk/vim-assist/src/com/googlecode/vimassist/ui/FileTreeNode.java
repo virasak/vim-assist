@@ -126,7 +126,11 @@ public class FileTreeNode implements TreeNode {
 
 	@Override
 	public String toString() {
-		return file.getName();
+		if (parentNode == null) {
+			return "/";
+		} else {
+			return file.getName();
+		}
 	}
 
 }

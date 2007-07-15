@@ -31,9 +31,13 @@ public class VimClient {
 
 	private String vimPath;
 	private String serverName;
+
+	public VimClient() {
+		this("gvim", "SERVER");
+	}
 	
-	public VimClient(String vimPath) {
-		this(vimPath, "VIMASSIST");
+	public VimClient(String serverName) {
+		this("gvim", serverName);
 	}
 	
 	public VimClient(String vimPath, String serverName) {
