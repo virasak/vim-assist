@@ -72,14 +72,14 @@ public class VimAssist {
 			}
 			
 		});
+		
+		final VimClient client = new VimClient(projectName);
+		
 		FileTree fileTree = new FileTree(fileTreeModel);
-		fileTree.setRootVisible(false);
-		fileTree.setShowsRootHandles(true);
 		fileTree.setFileSelectProcessor(new FileSelectProcessor() {
 			@Override
 			public void process(File file) {
 				if (!file.isDirectory()) {
-					VimClient client = new VimClient("C:\\Program Files\\Vim\\vim71\\gvim.exe", projectName);
 					client.openFile(file);
 				}	
 			}

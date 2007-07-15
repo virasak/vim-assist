@@ -10,9 +10,4 @@ public class ResourceUtils {
 		return new ImageIcon(Thread.currentThread().getContextClassLoader().getResource(resourcePath));
 	}
 
-	public static Reader loadInputStream(String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
