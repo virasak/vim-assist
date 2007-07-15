@@ -43,7 +43,7 @@ public class VimClient {
 	
 	public void openFile(File file) {
 		if (!file.isDirectory()) {
-			final String cmd = vimPath + " --servername " + serverName + " --remote-tab-silent \""
+			final String cmd = vimPath + " --servername \"" + serverName + "\" --remote-tab-silent \""
 					+ file.getAbsolutePath() + "\"";
 			try {
 				Runtime.getRuntime().exec(cmd);
