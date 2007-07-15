@@ -57,7 +57,8 @@ public class VimAssist {
 			}
 		}
 
-		final String projectName = properties.getProperty("projectName", "Vim Assist");
+		String projectName = properties.getProperty("projectName", "Vim Assist");
+		File projectDirectory = new File(properties.getProperty("location", "."));
 		//Create and set up the window.
 		JFrame frame = new JFrame(projectName);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -65,7 +66,7 @@ public class VimAssist {
 		frame.getContentPane().setLayout(new BorderLayout());
 		
 		//Create and set up the content pane.
-		FileTreeModel fileTreeModel = new FileTreeModel(new File(properties.getProperty("location", ".")), new FileFilter() {
+		FileTreeModel fileTreeModel = new FileTreeModel(projectDirectory, new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().matches(properties.getProperty("excludedFile", ""));
@@ -73,7 +74,7 @@ public class VimAssist {
 			
 		});
 		
-		final VimClient client = new VimClient(projectName);
+		final VimClient client = new VimClient(projectName, projectDirectory);
 		
 		FileTree fileTree = new FileTree(fileTreeModel);
 		fileTree.setFileSelectProcessor(new FileSelectProcessor() {
