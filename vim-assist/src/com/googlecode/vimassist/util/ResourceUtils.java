@@ -1,7 +1,5 @@
 package com.googlecode.vimassist.util;
 
-import java.io.Reader;
-
 import javax.swing.ImageIcon;
 
 public class ResourceUtils {
