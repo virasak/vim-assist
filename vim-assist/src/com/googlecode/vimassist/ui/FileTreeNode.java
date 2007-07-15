@@ -25,6 +25,7 @@
 package com.googlecode.vimassist.ui;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -41,10 +42,24 @@ public class FileTreeNode implements TreeNode {
 	private File file;
 
 	private List<FileTreeNode> childrenNode = null;
+	
+	private static final FileFilter INCLUDED_ALL_FILE_FILTER = new FileFilter() {
+		@Override
+		public boolean accept(File pathname) {
+			return false;
+		}
+	};
+	
+	private FileFilter excludedFilter;
 
 	public FileTreeNode(FileTreeNode parentNode, File file) {
+		this(parentNode, file, INCLUDED_ALL_FILE_FILTER);
+	}
+	
+	public FileTreeNode(FileTreeNode parentNode, File file, FileFilter excludedFilter) {
 		this.parentNode = parentNode;
 		this.file = file;
+		this.excludedFilter = excludedFilter;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,8 +78,10 @@ public class FileTreeNode implements TreeNode {
 			if (childrenNode == null) {
 				childrenNode = new ArrayList<FileTreeNode>();
 				for (File child : file.listFiles()) {
-					FileTreeNode childNode = new FileTreeNode(this, child);
-					childrenNode.add(childNode);
+					if (!excludedFilter.accept(child)) {
+						FileTreeNode childNode = new FileTreeNode(this, child, excludedFilter);
+						childrenNode.add(childNode);
+					}
 				}
 			}
 			return true;
