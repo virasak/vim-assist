@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 import com.googlecode.vimassist.vim.VimClient;
@@ -72,6 +73,8 @@ public class VimAssist {
 			
 		});
 		FileTree fileTree = new FileTree(fileTreeModel);
+		fileTree.setRootVisible(false);
+		fileTree.setShowsRootHandles(true);
 		fileTree.setFileSelectProcessor(new FileSelectProcessor() {
 			@Override
 			public void process(File file) {
@@ -81,7 +84,7 @@ public class VimAssist {
 				}	
 			}
 		});
-		frame.getContentPane().add(fileTree, BorderLayout.CENTER);
+		frame.getContentPane().add(new JScrollPane(fileTree), BorderLayout.CENTER);
 
 		//Display the window.
 		frame.pack();
