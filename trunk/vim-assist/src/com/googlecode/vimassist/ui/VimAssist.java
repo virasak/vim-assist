@@ -29,6 +29,13 @@ import java.io.File;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+import com.googlecode.vimassist.vim.VimClient;
+
+/**
+ * Sample Application for test core classes in action.
+ * @author virasak
+ *
+ */
 public class VimAssist {
 	//Optionally set the look and feel.
 	private static boolean useSystemLookAndFeel = true;
@@ -49,6 +56,15 @@ public class VimAssist {
 
 		//Create and set up the content pane.
 		FileTree newContentPane = new FileTree(new File("."));
+		newContentPane.setFileSelectProcessor(new FileSelectProcessor() {
+			@Override
+			public void process(File file) {
+				if (!file.isDirectory()) {
+					VimClient client = new VimClient("C:\\Program Files\\Vim\\vim71\\gvim.exe");
+					client.openFile(file);
+				}	
+			}
+		});
 		newContentPane.setOpaque(true); //content panes must be opaque
 		frame.setContentPane(newContentPane);
 
