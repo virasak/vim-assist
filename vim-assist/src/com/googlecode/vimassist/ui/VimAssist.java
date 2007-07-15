@@ -20,7 +20,7 @@ public class VimAssist {
 		}
 
 		//Create and set up the window.
-		JFrame frame = new JFrame("GVim Assist");
+		JFrame frame = new JFrame("Vim Assist");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		//Create and set up the content pane.
