@@ -28,16 +28,28 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 
-
+/**
+ * File Explorer
+ * @author virasak
+ *
+ */
 public class FileTree extends JPanel implements MouseListener {
 	
 	private static final long serialVersionUID = 1L;
+	
+	private FileSelectProcessor DEFAULT_FILE_SELECT_PROCESSOR = new FileSelectProcessor() {
+		@Override
+		public void process(File file) {
+			// do nothing
+		}
+	};
+	private FileSelectProcessor fileSelectProcessor = DEFAULT_FILE_SELECT_PROCESSOR;
+
 	
 	private JTree tree;
 
@@ -65,16 +77,7 @@ public class FileTree extends JPanel implements MouseListener {
 
 			File file = node.getFile();
 
-			if (!file.isDirectory()) {
-				final String cmd = "C:\\Program Files\\Vim\\vim71\\gvim.exe --servername TextMate --remote-tab-silent \""
-						+ file.getAbsolutePath() + "\"";
-				try {
-					Runtime.getRuntime().exec(cmd);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-
+			fileSelectProcessor.process(file);
 		}
 	}
 
@@ -96,5 +99,13 @@ public class FileTree extends JPanel implements MouseListener {
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public FileSelectProcessor getFileSelectProcessor() {
+		return fileSelectProcessor;
+	}
+
+	public void setFileSelectProcessor(FileSelectProcessor fileSelectProcessor) {
+		this.fileSelectProcessor = fileSelectProcessor == null? DEFAULT_FILE_SELECT_PROCESSOR : fileSelectProcessor;
 	}
 }
