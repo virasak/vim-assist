@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.tree.TreeNode;
@@ -40,35 +42,44 @@ public class FileTreeNode implements TreeNode {
 	private FileTreeNode parentNode;
 
 	private File file;
-
 	private List<FileTreeNode> childrenNode = null;
 	
 	private static final FileFilter INCLUDED_ALL_FILE_FILTER = new FileFilter() {
 		@Override
 		public boolean accept(File pathname) {
-			return false;
+			return true;
 		}
 	};
 	
-	private FileFilter excludedFilter;
+	private FileFilter includedFilter;
+	
+	private LabelDecorator labelDecorator;
+
+	private Comparator<? super FileTreeNode> FILE_COMPARATOR =  new Comparator<FileTreeNode>() {
+		@Override
+		public int compare(FileTreeNode o1, FileTreeNode o2) {
+			if ((o1.file.isDirectory() && o2.file.isDirectory()) ||
+				(!o1.file.isDirectory() && !o2.file.isDirectory())) {
+				
+				return o1.file.compareTo(o2.file);
+				
+			} else if (o1.file.isDirectory()) {
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+		
+	};
 
 	public FileTreeNode(FileTreeNode parentNode, File file) {
 		this(parentNode, file, INCLUDED_ALL_FILE_FILTER);
 	}
 	
-	public FileTreeNode(FileTreeNode parentNode, File file, FileFilter excludedFilter) {
+	public FileTreeNode(FileTreeNode parentNode, File file, FileFilter includedFilter) {
 		this.parentNode = parentNode;
 		this.file = file;
-		this.excludedFilter = excludedFilter;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Enumeration children() {
-		if (getAllowsChildren()) {
-			return Collections.enumeration(childrenNode);
-		} else {
-			return null;
-		}
+		this.includedFilter = includedFilter;
 	}
 
 	public boolean getAllowsChildren() {
@@ -76,15 +87,68 @@ public class FileTreeNode implements TreeNode {
 			return false;
 		} else {
 			if (childrenNode == null) {
-				childrenNode = new ArrayList<FileTreeNode>();
-				for (File child : file.listFiles()) {
-					if (!excludedFilter.accept(child)) {
-						FileTreeNode childNode = new FileTreeNode(this, child, excludedFilter);
-						childrenNode.add(childNode);
-					}
-				}
+				populateChildren();
 			}
 			return true;
+		}
+	}
+	
+	private void populateChildren() {
+		if (file.isDirectory()) {
+			childrenNode = new ArrayList<FileTreeNode>();		
+	
+			for (File child : file.listFiles(includedFilter)) {
+				FileTreeNode childNode = new FileTreeNode(this, child, includedFilter);
+				if (child.isDirectory()) {
+					childrenNode.add(childNode);
+				} else {
+					childrenNode.add(childNode);
+				}
+			}
+			
+			Collections.sort(childrenNode, FILE_COMPARATOR);
+		}
+
+	}
+	
+	public void refresh() {
+		if (childrenNode == null) {
+			populateChildren();
+		} else {
+			List<FileTreeNode> removeNodes = new LinkedList<FileTreeNode>();
+			
+			List<File> newFiles = new ArrayList<File>();
+			Collections.addAll(newFiles, file.listFiles(includedFilter));
+			
+			for (FileTreeNode childNode : childrenNode) {
+				if (!childNode.file.exists()) {
+					removeNodes.add(childNode);
+				} else {
+					childNode.refresh();
+					
+					newFiles.remove(childNode.getFile());
+					
+				}
+			}
+			
+			childrenNode.removeAll(removeNodes);
+			for (File newFile : newFiles) {
+				FileTreeNode node = new FileTreeNode(this, newFile, includedFilter);
+				childrenNode.add(node);
+			}
+			
+			Collections.sort(childrenNode, FILE_COMPARATOR );
+			
+		}
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public Enumeration children() {
+		if (getAllowsChildren()) {
+			return Collections.enumeration(childrenNode);
+		} else {
+			return null;
 		}
 	}
 
@@ -111,7 +175,7 @@ public class FileTreeNode implements TreeNode {
 			return -1;
 		}
 	}
-
+	
 	public TreeNode getParent() {
 		return parentNode;
 	}
@@ -123,14 +187,28 @@ public class FileTreeNode implements TreeNode {
 	public File getFile() {
 		return file;
 	}
+	
 
+	public LabelDecorator getLabelDecorator() {
+		return labelDecorator;
+	}
+
+	public void setLabelDecorator(LabelDecorator labelDecorator) {
+		this.labelDecorator = labelDecorator;
+	}
+	
 	@Override
 	public String toString() {
-		if (parentNode == null) {
-			return "/";
+		
+		if (labelDecorator != null) {
+			return labelDecorator.decorate(file);
 		} else {
-			return file.getName();
+			return parentNode == null? "/" : file.getName();
 		}
+	}
+	
+	public interface LabelDecorator {
+		String decorate(File file);
 	}
 
 }

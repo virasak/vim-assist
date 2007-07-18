@@ -33,8 +33,12 @@ public class VimClient {
 	private String serverName;
 	private File directory;
 
+	public VimClient() {
+		this(new File("."));
+	}
+	
 	public VimClient(File directory) {
-		this("gvim", "SERVER", directory);
+		this("SERVER", directory);
 	}
 	
 	public VimClient(String serverName, File directory) {
@@ -49,10 +53,16 @@ public class VimClient {
 	
 	public void openFile(File file) {
 		if (!file.isDirectory()) {
-			final String cmd = vimPath + " --servername \"" + serverName + "\" --remote-tab-silent \""
-					+ file.getAbsolutePath() + "\"";
+			String[] cmdArray = {
+				vimPath,
+				"--servername",
+				serverName,
+				"--remote-tab-silent",
+				file.getAbsolutePath()
+			};
+			
 			try {
-				Runtime.getRuntime().exec(cmd, null, directory);
+				Runtime.getRuntime().exec(cmdArray, null, directory);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

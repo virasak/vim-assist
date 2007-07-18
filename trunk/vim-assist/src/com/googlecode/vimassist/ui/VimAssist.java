@@ -31,9 +31,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 import com.googlecode.vimassist.vim.VimClient;
@@ -43,49 +43,77 @@ import com.googlecode.vimassist.vim.VimClient;
  * @author virasak
  *
  */
-public class VimAssist {
+public class VimAssist  implements FileFilter, SelectedFileProcessor {
 	//Optionally set the look and feel.
 	private static boolean useSystemLookAndFeel = true;
 
-	private static void createAndShowGUI(final Properties properties) {
+	private VimClient client;
+
+	private String projectName;
+	
+	private File projectDirectory;
+	
+	private Pattern excludedFilePattern;
+	
+	public VimAssist(Properties properties) {
+		projectName = properties.getProperty("projectName", "Vim Assist");
+		projectDirectory = new File(properties.getProperty("location", "."));
+		excludedFilePattern = Pattern.compile(properties.getProperty("excludedFile", ""));
+
+		client = new VimClient(projectName, projectDirectory);
+	}
+	
+	@Override
+	public boolean accept(File pathname) {
+		return excludedFilePattern.matcher(pathname.getName()).matches();
+	}
+
+	@Override
+	public void process(File file) {
+		if (!file.isDirectory()) {
+			client.openFile(file);
+		}
+	}
+	public VimClient getClient() {
+		return client;
+	}
+	public void setClient(VimClient client) {
+		this.client = client;
+	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public File getProjectDirectory() {
+		return projectDirectory;
+	}
+	public void setProjectDirectory(File projectDirectory) {
+		this.projectDirectory = projectDirectory;
+	}
+
+	private static void createAndShowGUI(VimAssist vimAssist) {
 		if (useSystemLookAndFeel) {
 			try {
-				UIManager.setLookAndFeel(UIManager
-						.getSystemLookAndFeelClassName());
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch (Exception e) {
 				System.err.println("Couldn't use system look and feel.");
 			}
 		}
 
-		String projectName = properties.getProperty("projectName", "Vim Assist");
-		File projectDirectory = new File(properties.getProperty("location", "."));
 		//Create and set up the window.
-		JFrame frame = new JFrame(projectName);
+		JFrame frame = new JFrame(vimAssist.getProjectName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BorderLayout());
+				
+		FileExplorer fileExplorer = new FileExplorer(vimAssist.getProjectDirectory());
+		fileExplorer.setExcludedFileFilter(vimAssist);
+
+		fileExplorer.setFileSelectProcessor(vimAssist);
 		
-		//Create and set up the content pane.
-		FileTreeModel fileTreeModel = new FileTreeModel(projectDirectory, new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().matches(properties.getProperty("excludedFile", ""));
-			}
-			
-		});
-		
-		final VimClient client = new VimClient(projectName, projectDirectory);
-		
-		FileTree fileTree = new FileTree(fileTreeModel);
-		fileTree.setFileSelectProcessor(new FileSelectProcessor() {
-			@Override
-			public void process(File file) {
-				if (!file.isDirectory()) {
-					client.openFile(file);
-				}	
-			}
-		});
-		frame.getContentPane().add(new JScrollPane(fileTree), BorderLayout.CENTER);
+		frame.getContentPane().add(fileExplorer, BorderLayout.CENTER);
 
 		//Display the window.
 		frame.pack();
@@ -93,28 +121,28 @@ public class VimAssist {
 	}
 
 	public static void main(final String[] args) {
-		//Schedule a job for the event-dispatching thread:
-		//creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
+
+		Properties projectProperties = new Properties();
+		if (args.length > 0) {
+			File projectFile = new File(args[args.length - 1]);
+			if (projectFile.exists() && projectFile.canRead() && projectFile.isFile()) {
 				try {
-					Properties projectProperties = new Properties();
-					if (args.length > 0) {
-						File projectFile = new File(args[args.length - 1]);
-						if (projectFile.exists() && projectFile.canRead() && projectFile.isFile()) {
-							projectProperties.load(new FileInputStream(projectFile));
+					projectProperties.load(new FileInputStream(projectFile));
+					final VimAssist vimAssist = new VimAssist(projectProperties);
+					javax.swing.SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+								createAndShowGUI(vimAssist);
 						}
-					}
-					createAndShowGUI(projectProperties);
+					});
+					
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("File not found: " + projectFile.getName());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("Loading properties is failed");
 				}
 			}
-		});
+		}
 	}
+
 
 }
