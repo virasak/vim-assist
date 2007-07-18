@@ -26,7 +26,7 @@ package com.googlecode.vimassist.ui;
 
 import java.io.File;
 
-public interface FileSelectProcessor {
+public interface SelectedFileProcessor {
 
 	public void process(File file);
 	
