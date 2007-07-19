@@ -28,7 +28,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class VimClient {
-
+	private static final String SERVER_NAME = "--servername";
+	private static final String REMOTE_TAB_SILENT = "--remote-tab-silent";
 	private String vimPath;
 	private String serverName;
 	private File directory;
@@ -53,20 +54,14 @@ public class VimClient {
 	
 	public void openFile(File file) {
 		if (!file.isDirectory()) {
-			String[] cmdArray = {
-				vimPath,
-				"--servername",
-				serverName,
-				"--remote-tab-silent",
-				file.getAbsolutePath()
-			};
-			
 			try {
-				Runtime.getRuntime().exec(cmdArray, null, directory);
+				ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, serverName, REMOTE_TAB_SILENT, file.getAbsolutePath());
+				builder.directory(directory);
+				builder.start();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}	
 	}
-	
+		
 }
