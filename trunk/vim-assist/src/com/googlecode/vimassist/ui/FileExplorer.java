@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -91,11 +90,11 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 	}
 
 
-	public void setFileSelectProcessor(SelectedFileProcessor fileSelectProcessor) {
-		if (fileSelectProcessor == null) {
+	public void setFileSelectProcessor(SelectedFileProcessor selectedFileProcessor) {
+		if (selectedFileProcessor == null) {
 			this.selectedFileProcessor = DEFAULT_FILE_SELECT_PROCESSOR;
 		} else {
-			this.selectedFileProcessor = fileSelectProcessor;
+			this.selectedFileProcessor = selectedFileProcessor;
 		}
 	}
 	
@@ -203,15 +202,9 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 				validate();
 			}
 			break;
-		
-		/* refresh all tree nodes */
-		case 'r':
-			fileTreeModel.refresh();
-			validate();
-			break;
-			
+					
 		/* rename directory or file */
-		case 'R': 
+		case 'r': 
 			{
 				String fileName = JOptionPane.showInputDialog(this, "Rename to");
 				if (!fileName.isEmpty()) {
@@ -258,6 +251,15 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 		case KeyEvent.VK_ESCAPE:
 			commandField.setText(null);
 			fileTree.requestFocus();
+			break;
+		}
+	}
+	
+	private void keyPressedForFileTree(KeyEvent e) {
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_F5:
+			fileTreeModel.refresh();
+			validate();
 			break;
 		}
 	}
@@ -314,8 +316,10 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+	public void keyPressed(KeyEvent event) {
+		if (event.getSource() == fileTree) {
+			keyPressedForFileTree(event);
+		}
 		
 	}
 
