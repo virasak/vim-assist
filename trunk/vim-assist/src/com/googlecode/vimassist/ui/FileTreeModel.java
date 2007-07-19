@@ -65,13 +65,7 @@ public class FileTreeModel extends DefaultTreeModel {
 		((FileTreeNode)getRoot()).refresh();
 		reload();
 	}
-	
-	public void refresh(File parentDirectory) {
-		if (parentDirectory.isDirectory()) {
-			
-		}
-	}
-	
+		
 	public boolean createFile(File parentDirectory, String fileName) throws IOException {
 		if (parentDirectory.isDirectory()) {
 			File newFile = new File(fileName);
