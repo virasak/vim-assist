@@ -42,6 +42,7 @@ public class FileTreeNode implements TreeNode {
 	private FileTreeNode parentNode;
 
 	private File file;
+	
 	private List<FileTreeNode> childrenNode = null;
 	
 	private static final FileFilter INCLUDED_ALL_FILE_FILTER = new FileFilter() {
@@ -83,14 +84,7 @@ public class FileTreeNode implements TreeNode {
 	}
 
 	public boolean getAllowsChildren() {
-		if(!file.isDirectory()) {
-			return false;
-		} else {
-			if (childrenNode == null) {
-				populateChildren();
-			}
-			return true;
-		}
+		return file.isDirectory();
 	}
 	
 	private void populateChildren() {
@@ -125,9 +119,8 @@ public class FileTreeNode implements TreeNode {
 					removeNodes.add(childNode);
 				} else {
 					childNode.refresh();
-					
-					newFiles.remove(childNode.getFile());
-					
+
+					newFiles.remove(childNode.getFile());					
 				}
 			}
 			
@@ -146,6 +139,9 @@ public class FileTreeNode implements TreeNode {
 	@SuppressWarnings("unchecked")
 	public Enumeration children() {
 		if (getAllowsChildren()) {
+			if (childrenNode == null) {
+				populateChildren();
+			}
 			return Collections.enumeration(childrenNode);
 		} else {
 			return null;
@@ -162,7 +158,12 @@ public class FileTreeNode implements TreeNode {
 
 	public int getChildCount() {
 		if (getAllowsChildren()) {
+			if (childrenNode == null) {
+				populateChildren();
+			}
+			
 			return childrenNode.size();
+			
 		} else {
 			return 0;
 		}
@@ -170,7 +171,12 @@ public class FileTreeNode implements TreeNode {
 
 	public int getIndex(TreeNode node) {
 		if(getAllowsChildren()) {
+			if (childrenNode == null) {
+				populateChildren();
+			}
+			
 			return childrenNode.indexOf(node);
+			
 		} else {
 			return -1;
 		}
