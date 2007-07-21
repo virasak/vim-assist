@@ -134,7 +134,7 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 								createAndShowGUI(vimAssist);
 						}
 					});
-					vimAssist.client.openFile(new File("Untitle"));
+					vimAssist.client.open();
 					
 				} catch (FileNotFoundException e) {
 					System.out.println("File not found: " + projectFile.getName());
