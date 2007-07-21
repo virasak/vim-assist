@@ -52,16 +52,36 @@ public class VimClient {
 		this.directory = directory;
 	}
 	
+	public void open() {
+		try {
+			ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, serverName);
+			builder.directory(directory);
+			builder.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	public void openFile(File file) {
 		if (!file.isDirectory()) {
 			try {
 				ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, serverName, REMOTE_TAB_SILENT, file.getAbsolutePath());
 				builder.directory(directory);
 				builder.start();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}	
+	}
+	
+	public void quit() {
+		try {
+			ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, "--remote-send", ":q!");
+			builder.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 		
 }
