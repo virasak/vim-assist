@@ -48,7 +48,7 @@ public class VimClient {
 	
 	public VimClient(String vimPath, String serverName, File directory) {
 		this.vimPath = vimPath;
-		this.serverName = serverName;
+		this.serverName = serverName + "@" + System.currentTimeMillis();
 		this.directory = directory;
 	}
 	

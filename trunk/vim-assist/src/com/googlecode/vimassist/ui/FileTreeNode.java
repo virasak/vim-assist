@@ -33,11 +33,12 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 
 
-public class FileTreeNode implements TreeNode {
+public class FileTreeNode implements MutableTreeNode {
 
 	private FileTreeNode parentNode;
 
@@ -215,6 +216,38 @@ public class FileTreeNode implements TreeNode {
 	
 	public interface LabelDecorator {
 		String decorate(File file);
+	}
+
+	@Override
+	public void insert(MutableTreeNode child, int index) {
+		childrenNode.add((FileTreeNode)child);
+	}
+
+	@Override
+	public void remove(int index) {
+		childrenNode.remove(index);
+	}
+
+	@Override
+	public void remove(MutableTreeNode node) {
+		childrenNode.remove(node);
+	}
+
+	@Override
+	public void removeFromParent() {
+		parentNode.remove(this);
+		parentNode = null;
+	}
+
+	@Override
+	public void setParent(MutableTreeNode newParent) {
+		parentNode = (FileTreeNode)newParent;
+		parentNode.insert(this, 0);
+	}
+
+	@Override
+	public void setUserObject(Object object) {
+		file = (File)object;		
 	}
 
 }

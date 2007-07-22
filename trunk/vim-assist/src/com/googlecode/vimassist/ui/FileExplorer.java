@@ -41,8 +41,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 
-public class FileExplorer extends JPanel implements MouseListener, KeyListener, ActionListener {
+public class FileExplorer extends JPanel implements MouseListener, KeyListener, ActionListener, TreeModelListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -72,8 +74,14 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 	}
 	
 	private void initGUI() {
+		/* file model */ 
 		fileTreeModel = new FileTreeModel(rootFile);
+		fileTreeModel.addTreeModelListener(this);
+
+		/* file tree */
 		fileTree = new FileTree(fileTreeModel);
+		fileTree.setEditable(true);
+		fileTree.setDragEnabled(true);
 		add(new JScrollPane(fileTree), BorderLayout.CENTER);
 		fileTree.addMouseListener(this);
 		fileTree.addKeyListener(this);
@@ -270,7 +278,6 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 			final String command = commandField.getText().substring(2);
 			try {
 				ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", command);
-				processBuilder.environment().putAll(System.getenv());
 				Process process = processBuilder.redirectErrorStream(true).directory(rootFile).start();
 				ProcessDialog processDialog = new ProcessDialog(process);
 				processDialog.setModalityType(ModalityType.APPLICATION_MODAL);
@@ -288,6 +295,8 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 
 	
 	/* Event ----------------------------------------------------- */
+	
+	/* MouseListener --------------------------------------------- */
 	public void mouseClicked(MouseEvent event) {
 		if (event.getClickCount() == 2) {
 			selectedFileProcessor.process(fileTree.getSelectedFile());
@@ -314,6 +323,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 
 	}
 
+	/* KeyListener ------------------------------------------ */
 
 	@Override
 	public void keyPressed(KeyEvent event) {
@@ -345,6 +355,33 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 		if (e.getSource() == commandField) {
 			actionPerformedForCommandField(e);
 		}
+	}
+
+	// TreeModelListener ------------------------------------
+	
+	@Override
+	public void treeNodesChanged(TreeModelEvent e) {
+		int i = 1;
+		System.out.println(i);
+		
+	}
+
+	@Override
+	public void treeNodesInserted(TreeModelEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void treeNodesRemoved(TreeModelEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void treeStructureChanged(TreeModelEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
