@@ -128,13 +128,6 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 			if (projectFile.exists() && projectFile.canRead() && projectFile.isFile()) {
 				try {
 					projectProperties.load(new FileInputStream(projectFile));
-					final VimAssist vimAssist = new VimAssist(projectProperties);
-					javax.swing.SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-								createAndShowGUI(vimAssist);
-						}
-					});
-					vimAssist.client.open();
 					
 				} catch (FileNotFoundException e) {
 					System.out.println("File not found: " + projectFile.getName());
@@ -142,7 +135,14 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 					System.out.println("Loading properties is failed");
 				}
 			}
-		}
+		}			
+		final VimAssist vimAssist = new VimAssist(projectProperties);
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				createAndShowGUI(vimAssist);
+			}
+		});
+		vimAssist.client.open();
 	}
 
 
