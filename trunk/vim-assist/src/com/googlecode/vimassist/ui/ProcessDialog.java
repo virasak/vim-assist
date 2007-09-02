@@ -17,6 +17,10 @@ import javax.swing.JTextField;
 
 public class ProcessDialog extends JDialog implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Process process;
 	private JTextArea inputTextArea = new JTextArea();
 	private JTextField outputTextField = new JTextField();

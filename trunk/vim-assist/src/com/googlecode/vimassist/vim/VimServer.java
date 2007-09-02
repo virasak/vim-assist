@@ -26,27 +26,30 @@ package com.googlecode.vimassist.vim;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 
-public class VimClient {
+public class VimServer {
 	private static final String SERVER_NAME = "--servername";
 	private static final String REMOTE_TAB_SILENT = "--remote-tab-silent";
+	private static final String REMOTE_SEND = "--remote-send";
 	private String vimPath;
 	private String serverName;
 	private File directory;
 
-	public VimClient() {
+	public VimServer() {
 		this(new File("."));
 	}
 	
-	public VimClient(File directory) {
+	public VimServer(File directory) {
 		this("SERVER", directory);
 	}
 	
-	public VimClient(String serverName, File directory) {
+	public VimServer(String serverName, File directory) {
 		this("gvim", serverName, directory);
 	}
 	
-	public VimClient(String vimPath, String serverName, File directory) {
+	public VimServer(String vimPath, String serverName, File directory) {
 		this.vimPath = vimPath;
 		this.serverName = serverName + "@" + System.currentTimeMillis();
 		this.directory = directory;
@@ -54,9 +57,7 @@ public class VimClient {
 	
 	public void open() {
 		try {
-			ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, serverName);
-			builder.directory(directory);
-			builder.start();
+			sendCommand();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -66,9 +67,7 @@ public class VimClient {
 	public void openFile(File file) {
 		if (!file.isDirectory()) {
 			try {
-				ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, serverName, REMOTE_TAB_SILENT, file.getAbsolutePath());
-				builder.directory(directory);
-				builder.start();
+				sendCommand(REMOTE_TAB_SILENT,file.getAbsolutePath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -77,11 +76,18 @@ public class VimClient {
 	
 	public void quit() {
 		try {
-			ProcessBuilder builder = new ProcessBuilder(vimPath, SERVER_NAME, "--remote-send", ":q!");
-			builder.start();
+			sendCommand(REMOTE_SEND, ":q!");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	protected Process sendCommand(String ...args) throws IOException {
+		ArrayList<String> commandList = new ArrayList<String>();
+		Collections.addAll(commandList, vimPath, SERVER_NAME, serverName);
+		Collections.addAll(commandList, args);
+		return new ProcessBuilder(commandList).directory(directory).start();
+		
 	}
 		
 }
