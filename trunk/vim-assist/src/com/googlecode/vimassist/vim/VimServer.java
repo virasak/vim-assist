@@ -82,12 +82,18 @@ public class VimServer {
 		}
 	}
 	
-	protected Process sendCommand(String ...args) throws IOException {
+	public Process sendCommand(String ...args) throws IOException {
 		ArrayList<String> commandList = new ArrayList<String>();
 		Collections.addAll(commandList, vimPath, SERVER_NAME, serverName);
 		Collections.addAll(commandList, args);
-		return new ProcessBuilder(commandList).directory(directory).start();
-		
+		return new ProcessBuilder(commandList).directory(directory).start();	
+	}
+	
+	public Process sendRemoteCommand(String ...args) throws IOException {
+		ArrayList<String> commandList = new ArrayList<String>();
+		Collections.addAll(commandList, vimPath, SERVER_NAME, serverName, REMOTE_SEND);
+		Collections.addAll(commandList, args);
+		return new ProcessBuilder(commandList).directory(directory).start();	
 	}
 		
 }
