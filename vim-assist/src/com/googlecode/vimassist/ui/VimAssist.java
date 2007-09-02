@@ -25,6 +25,12 @@
 package com.googlecode.vimassist.ui;
 
 import java.awt.BorderLayout;
+import java.awt.event.HierarchyBoundsListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -35,6 +41,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
+import javax.swing.text.Position;
 
 import com.googlecode.vimassist.vim.VimServer;
 
@@ -43,7 +50,7 @@ import com.googlecode.vimassist.vim.VimServer;
  * @author virasak
  *
  */
-public class VimAssist  implements FileFilter, SelectedFileProcessor {
+public class VimAssist  implements FileFilter, SelectedFileProcessor, HierarchyBoundsListener {
 	//Optionally set the look and feel.
 	private static boolean useSystemLookAndFeel = true;
 
@@ -114,7 +121,9 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 		fileExplorer.setFileSelectProcessor(vimAssist);
 		
 		frame.getContentPane().add(fileExplorer, BorderLayout.CENTER);
-
+		
+		frame.getRootPane().addHierarchyBoundsListener(vimAssist);
+		
 		//Display the window.
 		frame.pack();
 		frame.setVisible(true);
@@ -143,6 +152,24 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 			}
 		});
 		vimAssist.vimServer.open();
+	}
+
+
+	@Override
+	public void ancestorMoved(HierarchyEvent e) {
+		try {
+			int x = e.getChanged().getX() + e.getChanged().getWidth();
+			vimServer.sendRemoteCommand(":winpos " + x + " " + e.getChanged().getY() + "<CR>");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	@Override
+	public void ancestorResized(HierarchyEvent e) {
+		ancestorMoved(e);
+		
 	}
 
 
