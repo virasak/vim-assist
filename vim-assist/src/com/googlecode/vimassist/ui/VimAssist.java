@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import com.googlecode.vimassist.vim.VimClient;
+import com.googlecode.vimassist.vim.VimServer;
 
 /**
  * Sample Application for test core classes.
@@ -47,7 +47,7 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 	//Optionally set the look and feel.
 	private static boolean useSystemLookAndFeel = true;
 
-	private VimClient client;
+	private VimServer vimServer;
 
 	private String projectName;
 	
@@ -60,7 +60,7 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 		projectDirectory = new File(properties.getProperty("location", "."));
 		excludedFilePattern = Pattern.compile(properties.getProperty("excludedFile", ""));
 
-		client = new VimClient(projectName, projectDirectory);
+		vimServer = new VimServer(projectName, projectDirectory);
 	}
 	
 	@Override
@@ -71,14 +71,14 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 	@Override
 	public void process(File file) {
 		if (!file.isDirectory()) {
-			client.openFile(file);
+			vimServer.openFile(file);
 		}
 	}
-	public VimClient getClient() {
-		return client;
+	public VimServer getVimServer() {
+		return vimServer;
 	}
-	public void setClient(VimClient client) {
-		this.client = client;
+	public void setVimServer(VimServer server) {
+		this.vimServer = server;
 	}
 	public String getProjectName() {
 		return projectName;
@@ -142,7 +142,7 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor {
 				createAndShowGUI(vimAssist);
 			}
 		});
-		vimAssist.client.open();
+		vimAssist.vimServer.open();
 	}
 
 
