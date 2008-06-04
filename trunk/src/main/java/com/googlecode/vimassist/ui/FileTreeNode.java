@@ -43,18 +43,18 @@ public class FileTreeNode implements MutableTreeNode {
 	private FileTreeNode parentNode;
 
 	private File file;
-	
+
 	private List<FileTreeNode> childrenNode = null;
-	
+
 	private static final FileFilter INCLUDED_ALL_FILE_FILTER = new FileFilter() {
 		@Override
 		public boolean accept(File pathname) {
 			return true;
 		}
 	};
-	
+
 	private FileFilter includedFilter;
-	
+
 	private LabelDecorator labelDecorator;
 
 	private Comparator<? super FileTreeNode> FILE_COMPARATOR =  new Comparator<FileTreeNode>() {
@@ -62,22 +62,22 @@ public class FileTreeNode implements MutableTreeNode {
 		public int compare(FileTreeNode o1, FileTreeNode o2) {
 			if ((o1.file.isDirectory() && o2.file.isDirectory()) ||
 				(!o1.file.isDirectory() && !o2.file.isDirectory())) {
-				
+
 				return o1.file.compareTo(o2.file);
-				
+
 			} else if (o1.file.isDirectory()) {
 				return -1;
 			} else {
 				return 1;
 			}
 		}
-		
+
 	};
 
 	public FileTreeNode(FileTreeNode parentNode, File file) {
 		this(parentNode, file, INCLUDED_ALL_FILE_FILTER);
 	}
-	
+
 	public FileTreeNode(FileTreeNode parentNode, File file, FileFilter includedFilter) {
 		this.parentNode = parentNode;
 		this.file = file;
@@ -87,11 +87,11 @@ public class FileTreeNode implements MutableTreeNode {
 	public boolean getAllowsChildren() {
 		return file.isDirectory();
 	}
-	
+
 	private void populateChildren() {
 		if (file.isDirectory()) {
-			childrenNode = new ArrayList<FileTreeNode>();		
-	
+			childrenNode = new ArrayList<FileTreeNode>();
+
 			for (File child : file.listFiles(includedFilter)) {
 				FileTreeNode childNode = new FileTreeNode(this, child, includedFilter);
 				if (child.isDirectory()) {
@@ -100,39 +100,39 @@ public class FileTreeNode implements MutableTreeNode {
 					childrenNode.add(childNode);
 				}
 			}
-			
+
 			Collections.sort(childrenNode, FILE_COMPARATOR);
 		}
 
 	}
-	
+
 	public void refresh() {
 		if (childrenNode == null) {
 			populateChildren();
 		} else {
 			List<FileTreeNode> removeNodes = new LinkedList<FileTreeNode>();
-			
+
 			List<File> newFiles = new ArrayList<File>();
 			Collections.addAll(newFiles, file.listFiles(includedFilter));
-			
+
 			for (FileTreeNode childNode : childrenNode) {
 				if (!childNode.file.exists()) {
 					removeNodes.add(childNode);
 				} else {
 					childNode.refresh();
 
-					newFiles.remove(childNode.getFile());					
+					newFiles.remove(childNode.getFile());
 				}
 			}
-			
+
 			childrenNode.removeAll(removeNodes);
 			for (File newFile : newFiles) {
 				FileTreeNode node = new FileTreeNode(this, newFile, includedFilter);
 				childrenNode.add(node);
 			}
-			
+
 			Collections.sort(childrenNode, FILE_COMPARATOR );
-			
+
 		}
 	}
 
@@ -162,9 +162,9 @@ public class FileTreeNode implements MutableTreeNode {
 			if (childrenNode == null) {
 				populateChildren();
 			}
-			
+
 			return childrenNode.size();
-			
+
 		} else {
 			return 0;
 		}
@@ -175,14 +175,14 @@ public class FileTreeNode implements MutableTreeNode {
 			if (childrenNode == null) {
 				populateChildren();
 			}
-			
+
 			return childrenNode.indexOf(node);
-			
+
 		} else {
 			return -1;
 		}
 	}
-	
+
 	public TreeNode getParent() {
 		return parentNode;
 	}
@@ -194,7 +194,7 @@ public class FileTreeNode implements MutableTreeNode {
 	public File getFile() {
 		return file;
 	}
-	
+
 
 	public LabelDecorator getLabelDecorator() {
 		return labelDecorator;
@@ -203,17 +203,17 @@ public class FileTreeNode implements MutableTreeNode {
 	public void setLabelDecorator(LabelDecorator labelDecorator) {
 		this.labelDecorator = labelDecorator;
 	}
-	
+
 	@Override
 	public String toString() {
-		
+
 		if (labelDecorator != null) {
 			return labelDecorator.decorate(file);
 		} else {
 			return parentNode == null? "/" : file.getName();
 		}
 	}
-	
+
 	public interface LabelDecorator {
 		String decorate(File file);
 	}
@@ -225,29 +225,37 @@ public class FileTreeNode implements MutableTreeNode {
 
 	@Override
 	public void remove(int index) {
+		System.out.println("remove(int)");
 		childrenNode.remove(index);
 	}
 
 	@Override
 	public void remove(MutableTreeNode node) {
+		System.out.println("remove(MutableTreeNode)");
 		childrenNode.remove(node);
 	}
 
 	@Override
 	public void removeFromParent() {
+		System.out.println("removeFromParent()");
 		parentNode.remove(this);
 		parentNode = null;
 	}
 
 	@Override
 	public void setParent(MutableTreeNode newParent) {
+		System.out.println("setParent(MutableTreeNode)");
 		parentNode = (FileTreeNode)newParent;
 		parentNode.insert(this, 0);
 	}
 
 	@Override
 	public void setUserObject(Object object) {
-		file = (File)object;		
+		String fileName = (String)object;
+		File newFile = new File(file.getParentFile(), fileName);
+		if (!newFile.exists()) {
+			file.renameTo(newFile);
+		}
 	}
 
 }
