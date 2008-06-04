@@ -49,11 +49,11 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 	private static final long serialVersionUID = 1L;
 
 	private File rootFile;
-	
+
 	private FileTree fileTree;
-	
+
 	private FileTreeModel fileTreeModel;
-	
+
 	private JTextField commandField;
 
 	private SelectedFileProcessor DEFAULT_FILE_SELECT_PROCESSOR = new SelectedFileProcessor() {
@@ -62,19 +62,19 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 			// do nothing
 		}
 	};
-	
+
 	private SelectedFileProcessor selectedFileProcessor = DEFAULT_FILE_SELECT_PROCESSOR;
 
 	public FileExplorer(File file) {
 		super(new BorderLayout());
-		
+
 		this.rootFile = file;
-		
+
 		initGUI();
 	}
-	
+
 	private void initGUI() {
-		/* file model */ 
+		/* file model */
 		fileTreeModel = new FileTreeModel(rootFile);
 		fileTreeModel.addTreeModelListener(this);
 
@@ -85,7 +85,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 		add(new JScrollPane(fileTree), BorderLayout.CENTER);
 		fileTree.addMouseListener(this);
 		fileTree.addKeyListener(this);
-		
+
 		commandField = new JTextField();
 		commandField.setEnabled(false);
 		commandField.addActionListener(this);
@@ -105,31 +105,31 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 			this.selectedFileProcessor = selectedFileProcessor;
 		}
 	}
-	
+
 	protected void processFile() {
 		FileTreeNode node = (FileTreeNode)fileTree.getLastSelectedPathComponent();
 
 		if (node != null) {
 			selectedFileProcessor.process(node.getFile());
 		}
-		
+
 	}
 
 	public void setExcludedFileFilter(FileFilter fileFilter) {
 		((FileTreeModel)fileTree.getModel()).setExcludedFileFilter(fileFilter);
 		invalidate();
 	}
-	
+
 	private void keyTypedForFileTree(KeyEvent event) {
 		switch (event.getKeyChar()) {
-		
+
 		/* emulate double click */
 		case KeyEvent.VK_ENTER:
 			processFile();
 			break;
-			
+
 		/* emulate down arrow key */
-		case 'j': 
+		case 'j':
 			if (fileTree.isSelectionEmpty()) {
 				fileTree.setSelectionRow(0);
 			} else {
@@ -140,7 +140,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 				}
 			}
 			break;
-			
+
 		/* emulate up arrow key */
 		case 'k':
 			if (fileTree.isSelectionEmpty()) {
@@ -151,10 +151,10 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 				if (firstRow > 0) {
 					fileTree.setSelectionRow(firstRow - 1);
 				}
-				
+
 			}
 			break;
-			
+
 		/* emulate right arrow key */
 		case 'l':
 			if (fileTree.isSelectionEmpty()) {
@@ -173,7 +173,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 				}
 			}
 			break;
-			
+
 		/* emulate left arrow key */
 		case 'h':
 			if (fileTree.isSelectionEmpty()) {
@@ -199,7 +199,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 			commandField.requestFocus();
 			commandField.setText(":");
 			break;
-			
+
 		/* delete file or directory */
 		case KeyEvent.VK_DELETE:
 			File selectedFile = fileTree.getSelectedFile();
@@ -210,27 +210,31 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 				validate();
 			}
 			break;
-					
+
 		/* rename directory or file */
-		case 'r': 
+		case 'r':
 			{
 				String fileName = JOptionPane.showInputDialog(this, "Rename to");
 				if (!fileName.isEmpty()) {
-					fileTree.getSelectedFile().renameTo(new File(fileName));
+                    File targetFile = fileTree.getSelectedFile();
+                    File newFile = new File(targetFile.getParentFile(), fileName);
+                    if (!newFile.exists()) {
+                    	targetFile.renameTo(newFile);
+                    }
 				}
 				fileTreeModel.refresh();
 				validate();
 				break;
 			}
-		
+
 		/* create new file */
-		case 'n': 
+		case 'n':
 			{
 				File parentFile = fileTree.getSelectedFile();
 				if (!parentFile.isDirectory()) {
 					parentFile = parentFile.getParentFile();
 				}
-				
+
 				String fileName = JOptionPane.showInputDialog(this, "File name");
 				if (!fileName.isEmpty()) {
 					File newFile = new File(parentFile, fileName);
@@ -244,10 +248,10 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 						JOptionPane.showMessageDialog(this, "Failed on create new file", "Exception", JOptionPane.ERROR_MESSAGE);
 					}
 				}
-					
+
 				fileTreeModel.refresh();
 				validate();
-				
+
 				break;
 			}
 
@@ -262,7 +266,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 			break;
 		}
 	}
-	
+
 	private void keyPressedForFileTree(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_F5:
@@ -271,7 +275,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 			break;
 		}
 	}
-	
+
 	private void actionPerformedForCommandField(ActionEvent e) {
 
 		if (commandField.getText().startsWith(":!")) {
@@ -282,7 +286,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 				ProcessDialog processDialog = new ProcessDialog(process);
 				processDialog.setModalityType(ModalityType.APPLICATION_MODAL);
 				processDialog.setVisible(true);
-				
+
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -291,11 +295,11 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 		commandField.setEnabled(false);
 		commandField.setText(null);
 		fileTree.requestFocus();
-	}	
+	}
 
-	
+
 	/* Event ----------------------------------------------------- */
-	
+
 	/* MouseListener --------------------------------------------- */
 	public void mouseClicked(MouseEvent event) {
 		if (event.getClickCount() == 2) {
@@ -330,14 +334,14 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 		if (event.getSource() == fileTree) {
 			keyPressedForFileTree(event);
 		}
-		
+
 	}
 
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -358,30 +362,30 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener, 
 	}
 
 	// TreeModelListener ------------------------------------
-	
+
 	@Override
 	public void treeNodesChanged(TreeModelEvent e) {
 		int i = 1;
 		System.out.println(i);
-		
+
 	}
 
 	@Override
 	public void treeNodesInserted(TreeModelEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void treeNodesRemoved(TreeModelEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void treeStructureChanged(TreeModelEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
