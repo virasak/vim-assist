@@ -38,11 +38,11 @@ public class FileTree extends JTree {
 	public FileTree(FileTreeModel fileTreeModel) {
 		super(fileTreeModel);
 		
-		DefaultTreeCellRenderer defaultTreeCellRenderer = new DefaultTreeCellRenderer();
-		defaultTreeCellRenderer.setLeafIcon(ResourceUtils.createImageIcon("com/googlecode/vimassist/resource/icon/file.gif"));
-		defaultTreeCellRenderer.setOpenIcon(ResourceUtils.createImageIcon("com/googlecode/vimassist/resource/icon/directory.gif"));
-		defaultTreeCellRenderer.setClosedIcon(ResourceUtils.createImageIcon("com/googlecode/vimassist/resource/icon/directory.gif"));
-		setCellRenderer(defaultTreeCellRenderer);
+		DefaultTreeCellRenderer treeCellRenderer = new DefaultTreeCellRenderer();
+		treeCellRenderer.setLeafIcon(ResourceUtils.createImageIcon("com/googlecode/vimassist/resource/icon/file.gif"));
+		treeCellRenderer.setOpenIcon(ResourceUtils.createImageIcon("com/googlecode/vimassist/resource/icon/directory.gif"));
+		treeCellRenderer.setClosedIcon(ResourceUtils.createImageIcon("com/googlecode/vimassist/resource/icon/directory.gif"));
+		setCellRenderer(treeCellRenderer);
 	}
 
 	public File getSelectedFile() {
