@@ -27,10 +27,6 @@ package com.googlecode.vimassist.ui;
 import java.awt.BorderLayout;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -41,7 +37,6 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
-import javax.swing.text.Position;
 
 import com.googlecode.vimassist.vim.VimServer;
 
@@ -57,11 +52,11 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor, HierarchyB
 	private VimServer vimServer;
 
 	private String projectName;
-	
+
 	private File projectDirectory;
-	
+
 	private Pattern excludedFilePattern;
-	
+
 	public VimAssist(Properties properties) {
 		projectName = properties.getProperty("projectName", "Vim Assist");
 		projectDirectory = new File(properties.getProperty("location", "."));
@@ -69,7 +64,7 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor, HierarchyB
 
 		vimServer = new VimServer(projectName, projectDirectory);
 	}
-	
+
 	@Override
 	public boolean accept(File pathname) {
 		return excludedFilePattern.matcher(pathname.getName()).matches();
@@ -112,18 +107,18 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor, HierarchyB
 		//Create and set up the window.
 		JFrame frame = new JFrame(vimAssist.getProjectName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		frame.getContentPane().setLayout(new BorderLayout());
-				
+
 		FileExplorer fileExplorer = new FileExplorer(vimAssist.getProjectDirectory());
 		fileExplorer.setExcludedFileFilter(vimAssist);
 
 		fileExplorer.setFileSelectProcessor(vimAssist);
-		
+
 		frame.getContentPane().add(fileExplorer, BorderLayout.CENTER);
-		
+
 		frame.getRootPane().addHierarchyBoundsListener(vimAssist);
-		
+
 		//Display the window.
 		frame.pack();
 		frame.setVisible(true);
@@ -137,14 +132,14 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor, HierarchyB
 			if (projectFile.exists() && projectFile.canRead() && projectFile.isFile()) {
 				try {
 					projectProperties.load(new FileInputStream(projectFile));
-					
+
 				} catch (FileNotFoundException e) {
 					System.out.println("File not found: " + projectFile.getName());
 				} catch (IOException e) {
 					System.out.println("Loading properties is failed");
 				}
 			}
-		}			
+		}
 		final VimAssist vimAssist = new VimAssist(projectProperties);
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -169,7 +164,7 @@ public class VimAssist  implements FileFilter, SelectedFileProcessor, HierarchyB
 	@Override
 	public void ancestorResized(HierarchyEvent e) {
 		ancestorMoved(e);
-		
+
 	}
 
 
