@@ -109,20 +109,21 @@ public class VimServer implements Runnable {
 			if ( commandList != null) {
 
 				// move vim window too fast may get system error
-				// so get only the last test move command in sequence
+				// so get only the lastest move command in sequence
 				if (commandList.get(commandList.size() - 1).startsWith(":winpos")) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+
 					List<String> headCommandList = commandQueue.peek();
 					while (headCommandList != null && headCommandList.get(headCommandList.size() - 1).startsWith(":winpos")) {
 						commandList = commandQueue.poll();
 						headCommandList = commandQueue.peek();
 					}
 				}
+
 				try {
 					new ProcessBuilder(commandList).directory(directory).start();
 				} catch (IOException e) {
