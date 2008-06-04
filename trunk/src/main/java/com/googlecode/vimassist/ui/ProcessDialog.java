@@ -49,7 +49,7 @@ public class ProcessDialog extends JDialog implements ActionListener {
 
 							int result = in.read(charArray);
 							if (result == -1) {
-								inputTextArea.append("-- END OF FILE --");
+                                setTitle("Terminated");
 								break;
 							} 
 							inputTextArea.append(String.copyValueOf(charArray, 0, result));
