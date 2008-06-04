@@ -124,7 +124,7 @@ public class FileExplorer extends JPanel implements MouseListener, KeyListener {
 	/* MouseListener --------------------------------------------- */
 	public void mouseClicked(MouseEvent event) {
 		if (event.getClickCount() == 2) {
-			selectedFileProcessor.process(fileTree.getSelectedFile());
+			processFile();
 		}
 	}
 
